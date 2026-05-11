@@ -1,0 +1,12 @@
+target/
+.env
+uploads/
+*.log
+logs/
+.idea/
+.vscode/
+*.iml
+*.class
+.DS_Store
+Thumbs.db
+*.tmp
