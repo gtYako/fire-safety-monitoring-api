@@ -47,6 +47,16 @@ Backend REST API системы мониторинга пожарной безо
 docker compose up -d
 ```
 
+### Требования к запуску
+
+- **Java 17 или 21** (рекомендуется Java 21 LTS — Lombok не совместим с Java 25)
+- **Maven 3.9+** (или используйте mvnw.cmd из проекта)
+- **Docker** для PostgreSQL
+
+Если у вас Java 25, установите Java 21 LTS:
+- Скачать: https://adoptium.net/temurin/releases/?version=21
+- Установить и задать `JAVA_HOME` перед запуском
+
 ### 2. Настройка переменных окружения (опционально)
 
 Создайте файл `.env` (не коммитить в git!):
