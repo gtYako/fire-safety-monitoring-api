@@ -12,7 +12,12 @@ import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -99,17 +104,17 @@ public class ReportService {
             headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
             headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            Row headerRow = sheet.createRow(0);
+            org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
             String[] headers = {"ID", "Sensor", "Room", "Building", "Alert Type", "Status", "Value", "Threshold", "Message", "Created At"};
             for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
+                org.apache.poi.ss.usermodel.Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headers[i]);
                 cell.setCellStyle(headerStyle);
             }
 
             int rowNum = 1;
             for (Alert a : alerts) {
-                Row row = sheet.createRow(rowNum++);
+                org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(a.getId());
                 row.createCell(1).setCellValue(a.getSensor().getInventoryNumber());
                 row.createCell(2).setCellValue(a.getSensor().getRoom().getNumber());
