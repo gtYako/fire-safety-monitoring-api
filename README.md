@@ -62,7 +62,7 @@ docker compose up -d
 Создайте файл `.env` (не коммитить в git!):
 ```
 TELEGRAM_BOT_TOKEN=ваш_токен_бота
-TELEGRAM_CHAT_ID=ваш_chat_id
+TELEGRAM_CHAT_ID=856994240
 ```
 
 ### 3. Запуск приложения
@@ -172,7 +172,7 @@ curl -X GET "http://localhost:8080/api/reports/alerts/xlsx?dateFrom=2024-01-01T0
 Добавьте в `.env`:
 ```
 TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
-TELEGRAM_CHAT_ID=918951075
+TELEGRAM_CHAT_ID=856994240
 ```
 
 Если токен не настроен — приложение запустится без ошибок и запишет предупреждение в лог.
