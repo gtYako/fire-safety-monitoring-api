@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "Login and token management")
 public class AuthController {
 
+    // Сервис проверяет логин/пароль и выдаёт JWT-токен.
     private final AuthService authService;
 
     @PostMapping("/login")
     @Operation(summary = "Login and get JWT token")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        // POST /api/auth/login используется перед защищёнными запросами в Swagger.
         return ResponseEntity.ok(authService.login(request));
     }
 }

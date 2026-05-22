@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 @Component
 public class EntityMapper {
 
+    // Маппер отделяет внутренние Entity от DTO, которые возвращаются клиенту.
     public UserResponse toUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -63,6 +64,7 @@ public class EntityMapper {
                 .inventoryNumber(r.getSensor().getInventoryNumber())
                 .value(r.getValue())
                 .thresholdValue(r.getSensor().getThresholdValue())
+                // Флаг exceeded сразу показывает клиенту, было ли превышение порога.
                 .exceeded(r.getValue() > r.getSensor().getThresholdValue())
                 .measuredAt(r.getMeasuredAt())
                 .build();
@@ -75,6 +77,7 @@ public class EntityMapper {
                 .inventoryNumber(a.getSensor().getInventoryNumber())
                 .roomNumber(a.getSensor().getRoom().getNumber())
                 .buildingName(a.getSensor().getRoom().getBuilding().getName())
+                // reading может быть null для вручную созданных или восстановленных записей.
                 .readingId(a.getReading() != null ? a.getReading().getId() : null)
                 .readingValue(a.getReading() != null ? a.getReading().getValue() : null)
                 .alertType(a.getAlertType())
@@ -95,6 +98,7 @@ public class EntityMapper {
                 .status(i.getStatus())
                 .createdAt(i.getCreatedAt())
                 .closedAt(i.getClosedAt())
+                // Фото инцидента вкладываются сразу, чтобы клиент видел полную карточку.
                 .photos(i.getPhotos().stream().map(this::toPhotoResponse).collect(Collectors.toList()))
                 .build();
     }

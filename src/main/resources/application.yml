@@ -1,4 +1,5 @@
 spring:
+  # Настройки подключения к PostgreSQL, который поднимается через docker compose.
   datasource:
     url: jdbc:postgresql://localhost:5432/fire_safety_db
     username: postgres
@@ -18,13 +19,16 @@ spring:
       max-request-size: 10MB
 
 server:
+  # Порт, на котором запускается REST API и Swagger.
   port: 8080
 
 jwt:
+  # Секрет нужен для подписи JWT. Можно переопределить через переменную JWT_SECRET.
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   expiration: 86400000
 
 telegram:
+  # Токен и chat_id берутся из переменных окружения перед запуском приложения.
   bot-token: ${TELEGRAM_BOT_TOKEN:}
   chat-id: ${TELEGRAM_CHAT_ID:856994240}
 

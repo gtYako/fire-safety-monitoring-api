@@ -21,6 +21,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class AlertController {
 
+    // REST endpoint'ы для просмотра тревог и изменения их статуса.
     private final AlertService alertService;
 
     @GetMapping
@@ -42,6 +43,7 @@ public class AlertController {
     @Operation(summary = "Update alert status")
     public ResponseEntity<AlertResponse> updateStatus(@PathVariable Long id,
                                                        @Valid @RequestBody AlertStatusRequest request) {
+        // Диспетчер может закрыть тревогу или отметить её как ложную.
         return ResponseEntity.ok(alertService.updateStatus(id, request));
     }
 }

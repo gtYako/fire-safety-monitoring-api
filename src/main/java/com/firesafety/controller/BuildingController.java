@@ -22,6 +22,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class BuildingController {
 
+    // REST endpoint'ы для справочника корпусов.
     private final BuildingService buildingService;
 
     @GetMapping

@@ -19,6 +19,7 @@ import java.util.*;
 @Slf4j
 public class DataInitializer implements ApplicationRunner {
 
+    // При первом запуске создаёт базовые роли, права, пользователей и тестовые датчики.
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
@@ -30,6 +31,7 @@ public class DataInitializer implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        // Если admin уже есть, считаем, что начальные данные были созданы ранее.
         if (userRepository.existsByUsername("admin")) {
             log.info("Data already initialized, skipping...");
             return;
@@ -46,6 +48,7 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private Map<String, Permission> createPermissions() {
+        // Permissions используются в @PreAuthorize для защиты endpoint'ов.
         String[] permNames = {
             "USER_READ", "USER_MANAGE",
             "BUILDING_READ", "BUILDING_MANAGE",
@@ -70,9 +73,11 @@ public class DataInitializer implements ApplicationRunner {
     private Map<String, Role> createRoles(Map<String, Permission> perms) {
         Map<String, Role> roles = new HashMap<>();
 
+        // ADMIN получает все права.
         // ADMIN - all permissions
         roles.put("ADMIN", createRole("ADMIN", new HashSet<>(perms.values())));
 
+        // DISPATCHER работает с мониторингом, тревогами и отчётами.
         // DISPATCHER - monitor and handle alerts
         roles.put("DISPATCHER", createRole("DISPATCHER", Set.of(
             perms.get("BUILDING_READ"), perms.get("ROOM_READ"),
@@ -82,6 +87,7 @@ public class DataInitializer implements ApplicationRunner {
             perms.get("REPORT_GENERATE")
         )));
 
+        // TECHNICIAN ведёт инциденты и прикрепляет фото.
         // TECHNICIAN - handle incidents
         roles.put("TECHNICIAN", createRole("TECHNICIAN", Set.of(
             perms.get("BUILDING_READ"), perms.get("ROOM_READ"),
@@ -91,6 +97,7 @@ public class DataInitializer implements ApplicationRunner {
             perms.get("FILE_UPLOAD")
         )));
 
+        // VIEWER только смотрит справочники и события.
         // VIEWER - read-only
         roles.put("VIEWER", createRole("VIEWER", Set.of(
             perms.get("BUILDING_READ"), perms.get("ROOM_READ"),
@@ -144,6 +151,7 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void createTestData() {
+        // Тестовые данные нужны, чтобы сразу проверить Swagger и Telegram-алерт.
         Building building = buildingRepository.save(Building.builder()
                 .name("Учебный корпус А")
                 .address("ул. Университетская, д. 1")

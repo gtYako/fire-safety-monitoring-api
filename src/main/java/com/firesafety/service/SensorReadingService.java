@@ -23,25 +23,36 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SensorReadingService {
 
+    // Репозиторий хранит показания датчиков в базе данных.
     private final SensorReadingRepository readingRepository;
+
+    // Нужен, чтобы найти датчик по ID перед сохранением нового показания.
     private final SensorRepository sensorRepository;
+
+    // Создаёт тревогу, если новое показание превысило порог датчика.
     private final AlertService alertService;
+
+    // Преобразует Entity-объекты в DTO-ответы для API.
     private final EntityMapper mapper;
 
     @Transactional(readOnly = true)
     public List<SensorReadingResponse> getAll() {
+        // Возвращает все сохранённые показания датчиков.
         return readingRepository.findAll().stream().map(mapper::toReadingResponse).collect(Collectors.toList());
     }
 
     @Transactional
     public SensorReadingResponse create(SensorReadingRequest request) {
+        // Находим датчик, для которого пришло новое показание.
         Sensor sensor = sensorRepository.findById(request.getSensorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Sensor", request.getSensorId()));
 
+        // Показания принимаются только от активных датчиков.
         if (sensor.getStatus() != SensorStatus.ACTIVE) {
             throw new IllegalArgumentException("Cannot add reading to sensor with status: " + sensor.getStatus());
         }
 
+        // Сохраняем само показание в базе данных.
         SensorReading reading = SensorReading.builder()
                 .sensor(sensor)
                 .value(request.getValue())
@@ -53,6 +64,7 @@ public class SensorReadingService {
 
         SensorReadingResponse response = mapper.toReadingResponse(reading);
 
+        // Если значение выше порога, создаём тревогу и добавляем её ID в ответ API.
         if (request.getValue() > sensor.getThresholdValue()) {
             log.warn("Threshold exceeded! sensor={}, value={} > threshold={}",
                     sensor.getInventoryNumber(), request.getValue(), sensor.getThresholdValue());

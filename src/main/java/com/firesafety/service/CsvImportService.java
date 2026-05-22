@@ -29,6 +29,7 @@ import java.util.List;
 @Slf4j
 public class CsvImportService {
 
+    // Импортирует датчики из CSV и сохраняет результат импорта в журнал.
     private final SensorRepository sensorRepository;
     private final RoomRepository roomRepository;
     private final ImportLogRepository importLogRepository;
@@ -36,6 +37,7 @@ public class CsvImportService {
 
     @Transactional
     public ImportLogResponse importSensors(MultipartFile file) {
+        // Пустой файл сразу отклоняем, чтобы не создавать бессмысленную запись импорта.
         if (file == null || file.isEmpty()) {
             throw new ImportException("CSV file is empty");
         }
@@ -53,12 +55,15 @@ public class CsvImportService {
 
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
+
+                // Первую строку с заголовками пропускаем.
                 if (lineNumber == 1 && line.toLowerCase().contains("inventorynumber")) {
                     continue;
                 }
                 if (line.isBlank()) continue;
 
                 try {
+                    // Ожидаемый формат: inventoryNumber,type,status,roomId,thresholdValue.
                     String[] parts = line.split(",");
                     if (parts.length < 5) {
                         throw new IllegalArgumentException("Expected 5 columns, got " + parts.length);
@@ -74,6 +79,7 @@ public class CsvImportService {
                         throw new IllegalArgumentException("Duplicate inventory number: " + inventoryNumber);
                     }
 
+                    // Каждый импортируемый датчик должен ссылаться на существующее помещение.
                     Room room = roomRepository.findById(roomId)
                             .orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomId));
 
@@ -88,6 +94,7 @@ public class CsvImportService {
                     imported++;
                     log.debug("Imported sensor: {}", inventoryNumber);
                 } catch (Exception e) {
+                    // Ошибка одной строки не останавливает весь импорт.
                     failed++;
                     String error = "Line " + lineNumber + ": " + e.getMessage();
                     errors.add(error);
@@ -101,6 +108,7 @@ public class CsvImportService {
         ImportStatus status = failed == 0 ? ImportStatus.SUCCESS
                 : (imported == 0 ? ImportStatus.FAILED : ImportStatus.PARTIAL);
 
+        // Фиксируем итог импорта: сколько строк прошло и какие ошибки были найдены.
         ImportLog importLog = ImportLog.builder()
                 .fileName(fileName)
                 .importedCount(imported)

@@ -25,4 +25,5 @@ import org.springframework.context.annotation.Configuration;
     description = "Enter JWT token obtained from POST /api/auth/login"
 )
 public class SwaggerConfig {
+    // Конфигурация только описывает OpenAPI/Swagger, отдельная логика здесь не нужна.
 }

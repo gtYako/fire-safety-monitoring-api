@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @SecurityRequirement(name = "bearerAuth")
 public class TelegramController {
 
+    // Позволяет администратору смотреть историю отправки Telegram-уведомлений.
     private final TelegramLogRepository telegramLogRepository;
     private final EntityMapper mapper;
 
@@ -35,6 +36,7 @@ public class TelegramController {
             @RequestParam(defaultValue = "20") int size) {
 
         List<TelegramLogResponse> logs = telegramLogRepository
+                // Новые записи показываем первыми.
                 .findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "sentAt")))
                 .stream()
                 .map(mapper::toTelegramLogResponse)

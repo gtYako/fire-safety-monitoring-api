@@ -20,6 +20,7 @@
 @REM Maven Start Up Batch script
 
 @IF "%__MVNW_ARG0_NAME__%"=="" (SET "BASE_DIR=%~dp0") ELSE (SET "BASE_DIR=%__MVNW_ARG0_NAME__%")
+@IF "%BASE_DIR:~-1%"=="\" SET "BASE_DIR=%BASE_DIR:~0,-1%"
 @SET MAVEN_PROJECTBASEDIR=%BASE_DIR%
 @SET MAVEN_WRAPPER_PROPERTIES=%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties
 @SET DOWNLOAD_URL=
@@ -38,4 +39,4 @@
     powershell -Command "& { Invoke-WebRequest -Uri '%DOWNLOAD_URL%' -OutFile '%MAVEN_WRAPPER_JAR%' }"
 )
 
-@"%JAVA_HOME%\bin\java.exe" -classpath "%MAVEN_WRAPPER_JAR%" org.apache.maven.wrapper.MavenWrapperMain %* "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%"
+@"%JAVA_HOME%\bin\java.exe" "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" -classpath "%MAVEN_WRAPPER_JAR%" org.apache.maven.wrapper.MavenWrapperMain %*

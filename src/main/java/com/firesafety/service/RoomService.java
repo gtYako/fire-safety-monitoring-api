@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RoomService {
 
+    // CRUD-логика для помещений и привязка каждого помещения к корпусу.
     private final RoomRepository roomRepository;
     private final BuildingRepository buildingRepository;
     private final EntityMapper mapper;
@@ -38,6 +39,8 @@ public class RoomService {
     @Transactional
     public RoomResponse create(RoomRequest request) {
         log.info("Creating room {} in building {}", request.getNumber(), request.getBuildingId());
+
+        // Помещение нельзя создать без существующего корпуса.
         Building building = buildingRepository.findById(request.getBuildingId())
                 .orElseThrow(() -> new ResourceNotFoundException("Building", request.getBuildingId()));
 
@@ -72,6 +75,7 @@ public class RoomService {
     }
 
     private Room find(Long id) {
+        // Общий поиск помещения для методов чтения, обновления и удаления.
         return roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room", id));
     }

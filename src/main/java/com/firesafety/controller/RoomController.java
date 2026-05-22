@@ -22,6 +22,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class RoomController {
 
+    // REST endpoint'ы для помещений внутри корпусов.
     private final RoomService roomService;
 
     @GetMapping

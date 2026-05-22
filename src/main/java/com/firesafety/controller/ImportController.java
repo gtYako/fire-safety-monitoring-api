@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @SecurityRequirement(name = "bearerAuth")
 public class ImportController {
 
+    // Endpoint для массового добавления датчиков из CSV-файла.
     private final CsvImportService csvImportService;
 
     @PostMapping(value = "/sensors/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -26,6 +27,7 @@ public class ImportController {
     @Operation(summary = "Import sensors from CSV file",
                description = "CSV format: inventoryNumber,type,status,roomId,thresholdValue")
     public ResponseEntity<ImportLogResponse> importSensors(@RequestParam("file") MultipartFile file) {
+        // Возвращает журнал импорта: сколько строк импортировано и какие ошибки найдены.
         return ResponseEntity.ok(csvImportService.importSensors(file));
     }
 }

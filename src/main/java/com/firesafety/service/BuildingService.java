@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BuildingService {
 
+    // CRUD-логика для корпусов: создание, чтение, обновление и удаление.
     private final BuildingRepository buildingRepository;
     private final EntityMapper mapper;
 
@@ -36,6 +37,7 @@ public class BuildingService {
     @Transactional
     public BuildingResponse create(BuildingRequest request) {
         log.info("Creating building: {}", request.getName());
+        // Собираем Entity из DTO-запроса и сохраняем новый корпус.
         Building building = Building.builder()
                 .name(request.getName())
                 .address(request.getAddress())
@@ -62,6 +64,7 @@ public class BuildingService {
     }
 
     private Building find(Long id) {
+        // Общий поиск корпуса, чтобы все методы одинаково возвращали 404 при неверном ID.
         return buildingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Building", id));
     }

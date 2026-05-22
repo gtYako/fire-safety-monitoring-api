@@ -71,6 +71,15 @@ TELEGRAM_CHAT_ID=856994240
 mvn spring-boot:run
 ```
 
+Для запуска через PowerShell с Maven Wrapper и Telegram:
+
+```powershell
+$env:JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-25.0.3.9-hotspot"
+$env:TELEGRAM_BOT_TOKEN="ваш_токен_бота"
+$env:TELEGRAM_CHAT_ID="856994240"
+.\mvnw.cmd spring-boot:run
+```
+
 ### 4. Swagger UI
 
 Откройте: http://localhost:8080/swagger-ui/index.html

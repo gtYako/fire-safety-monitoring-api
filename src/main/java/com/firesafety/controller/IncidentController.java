@@ -23,6 +23,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class IncidentController {
 
+    // REST endpoint'ы для создания инцидентов из тревог и ведения их статусов.
     private final IncidentService incidentService;
 
     @GetMapping
@@ -43,6 +44,7 @@ public class IncidentController {
     @PreAuthorize("hasAuthority('INCIDENT_UPDATE')")
     @Operation(summary = "Create incident from alert")
     public ResponseEntity<IncidentResponse> create(@Valid @RequestBody IncidentRequest request) {
+        // Инцидент создаётся вручную на основе уже существующей тревоги.
         return ResponseEntity.status(HttpStatus.CREATED).body(incidentService.create(request));
     }
 

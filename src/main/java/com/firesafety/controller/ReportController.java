@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 @SecurityRequirement(name = "bearerAuth")
 public class ReportController {
 
+    // Endpoint'ы возвращают готовые файлы отчётов по тревогам.
     private final ReportService reportService;
 
     @GetMapping("/alerts/pdf")
@@ -33,6 +34,7 @@ public class ReportController {
             @Parameter(description = "End date (ISO format)", example = "2024-12-31T23:59:59")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTo) {
 
+        // PDF отдаётся как attachment, чтобы браузер скачал файл.
         byte[] pdf = reportService.generateAlertPdf(dateFrom, dateTo);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=alerts.pdf")
@@ -47,6 +49,7 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateFrom,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTo) {
 
+        // XLSX формируется в памяти и возвращается как Excel-файл.
         byte[] xlsx = reportService.generateAlertXlsx(dateFrom, dateTo);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=alerts.xlsx")

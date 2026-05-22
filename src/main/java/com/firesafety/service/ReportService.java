@@ -34,8 +34,10 @@ import java.util.List;
 @Slf4j
 public class ReportService {
 
+    // Единый формат даты для PDF/XLSX отчётов.
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    // Сервис формирует отчёты по тревогам за выбранный период.
     private final AlertRepository alertRepository;
     private final ReportLogRepository reportLogRepository;
     private final UserRepository userRepository;
@@ -43,9 +45,12 @@ public class ReportService {
     @Transactional
     public byte[] generateAlertPdf(LocalDateTime from, LocalDateTime to) {
         log.info("Generating PDF alert report from {} to {}", from, to);
+
+        // Берём только тревоги, которые попали в заданный интервал.
         List<Alert> alerts = alertRepository.findByPeriod(from, to);
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            // OpenPDF пишет документ в память, после чего байты возвращаются клиенту.
             Document document = new Document();
             PdfWriter.getInstance(document, out);
             document.open();
@@ -90,6 +95,8 @@ public class ReportService {
     @Transactional
     public byte[] generateAlertXlsx(LocalDateTime from, LocalDateTime to) {
         log.info("Generating XLSX alert report from {} to {}", from, to);
+
+        // Для Excel используется тот же набор тревог, что и для PDF.
         List<Alert> alerts = alertRepository.findByPeriod(from, to);
 
         try (Workbook workbook = new XSSFWorkbook();
@@ -97,6 +104,7 @@ public class ReportService {
 
             Sheet sheet = workbook.createSheet("Alerts");
 
+            // Выделяем строку заголовков, чтобы таблицу было удобно читать.
             CellStyle headerStyle = workbook.createCellStyle();
             Font headerFont = workbook.createFont();
             headerFont.setBold(true);
@@ -143,6 +151,7 @@ public class ReportService {
 
     private void saveReportLog(ReportType type, String fileName) {
         try {
+            // Журнал отчётов показывает, кто и когда формировал файл.
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             User user = userRepository.findByUsername(username).orElse(null);
             ReportLog log = ReportLog.builder()

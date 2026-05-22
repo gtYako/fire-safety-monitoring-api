@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
 
+    // Управляет пользователями, их ролями и безопасным хранением паролей.
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -44,6 +45,8 @@ public class UserService {
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         log.info("Creating user: {}", request.getUsername());
+
+        // Логин и email проверяются на уникальность до сохранения пользователя.
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username already exists: " + request.getUsername());
         }
@@ -53,6 +56,7 @@ public class UserService {
 
         User user = User.builder()
                 .username(request.getUsername())
+                // В базе хранится BCrypt-хэш, а не исходный пароль.
                 .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .email(request.getEmail())
@@ -102,6 +106,7 @@ public class UserService {
     }
 
     private Set<Role> resolveRoles(Set<String> roleNames) {
+        // Если роли не передали, пользователь получает минимальную роль VIEWER.
         if (roleNames == null || roleNames.isEmpty()) {
             Set<Role> roles = new HashSet<>();
             roleRepository.findByName("VIEWER").ifPresent(roles::add);

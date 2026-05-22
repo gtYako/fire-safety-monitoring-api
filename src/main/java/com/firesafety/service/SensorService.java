@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SensorService {
 
+    // Управляет датчиками и их привязкой к помещениям.
     private final SensorRepository sensorRepository;
     private final RoomRepository roomRepository;
     private final EntityMapper mapper;
@@ -39,9 +40,13 @@ public class SensorService {
     @Transactional
     public SensorResponse create(SensorRequest request) {
         log.info("Creating sensor: {}", request.getInventoryNumber());
+
+        // Инвентарный номер должен быть уникальным, иначе датчики нельзя отличить друг от друга.
         if (sensorRepository.existsByInventoryNumber(request.getInventoryNumber())) {
             throw new IllegalArgumentException("Inventory number already exists: " + request.getInventoryNumber());
         }
+
+        // Датчик всегда должен находиться в существующем помещении.
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("Room", request.getRoomId()));
 
@@ -82,6 +87,7 @@ public class SensorService {
     }
 
     private Sensor find(Long id) {
+        // Общий поиск датчика с единым сообщением об ошибке.
         return sensorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sensor", id));
     }

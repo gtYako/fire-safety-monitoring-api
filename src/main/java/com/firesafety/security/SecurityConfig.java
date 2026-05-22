@@ -23,11 +23,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // Основная настройка безопасности: JWT, роли, пароли и доступ к Swagger.
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // BCrypt нужен, чтобы не хранить пароли в открытом виде.
         return new BCryptPasswordEncoder();
     }
 
@@ -47,15 +49,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // REST API не использует HTML-формы, поэтому CSRF отключён.
             .csrf(AbstractHttpConfigurer::disable)
+            // JWT делает API stateless: сессии на сервере не хранятся.
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Логин и документация доступны без токена, остальные запросы требуют авторизации.
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
+            // Фильтр читает Bearer-токен до стандартной проверки логина/пароля.
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

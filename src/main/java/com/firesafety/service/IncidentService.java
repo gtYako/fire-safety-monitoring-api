@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IncidentService {
 
+    // Управляет инцидентами, которые создаются на основе тревог.
     private final IncidentRepository incidentRepository;
     private final AlertRepository alertRepository;
     private final UserRepository userRepository;
@@ -44,11 +45,14 @@ public class IncidentService {
     @Transactional
     public IncidentResponse create(IncidentRequest request) {
         log.info("Creating incident for alert {}", request.getAlertId());
+
+        // Инцидент всегда связан с уже созданной тревогой.
         Alert alert = alertRepository.findById(request.getAlertId())
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", request.getAlertId()));
 
         User responsible = null;
         if (request.getResponsibleUserId() != null) {
+            // Ответственного пользователя можно назначить сразу при создании инцидента.
             responsible = userRepository.findById(request.getResponsibleUserId())
                     .orElseThrow(() -> new ResourceNotFoundException("User", request.getResponsibleUserId()));
         }
@@ -68,6 +72,8 @@ public class IncidentService {
         log.info("Updating incident {} status to {}", id, request.getStatus());
         Incident incident = find(id);
         incident.setStatus(request.getStatus());
+
+        // При закрытии фиксируем дату завершения для отчётов и истории.
         if (request.getStatus() == IncidentStatus.CLOSED) {
             incident.setClosedAt(LocalDateTime.now());
         }
@@ -75,6 +81,7 @@ public class IncidentService {
     }
 
     private Incident find(Long id) {
+        // Общий поиск инцидента для чтения и изменения статуса.
         return incidentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Incident", id));
     }

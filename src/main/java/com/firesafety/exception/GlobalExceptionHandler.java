@@ -20,6 +20,7 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    // Единая точка обработки ошибок: все исключения превращаются в понятный JSON-ответ.
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         log.warn("Resource not found: {}", ex.getMessage());
@@ -71,6 +72,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        // Ошибки Bean Validation собираются по полям, чтобы Swagger показал конкретную причину.
         Map<String, String> fieldErrors = new HashMap<>();
         for (FieldError fe : ex.getBindingResult().getFieldErrors()) {
             fieldErrors.put(fe.getField(), fe.getDefaultMessage());
@@ -101,12 +103,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        // Непредвиденные ошибки логируем подробно, но наружу не отдаём stack trace.
         log.error("Unexpected error: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"));
     }
 
     private ErrorResponse buildError(HttpStatus status, String message) {
+        // Общий формат ошибки для всех обработчиков.
         return ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status.value())

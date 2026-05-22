@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 @SecurityRequirement(name = "bearerAuth")
 public class FileController {
 
+    // Загружает фотографии к инцидентам через multipart/form-data.
     private final FileStorageService fileStorageService;
 
     @PostMapping(value = "/{incidentId}/photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -28,6 +29,7 @@ public class FileController {
     public ResponseEntity<IncidentPhotoResponse> uploadPhoto(
             @PathVariable Long incidentId,
             @RequestParam("file") MultipartFile file) {
+        // Файл сохраняется на диск, а информация о нём привязывается к инциденту.
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(fileStorageService.savePhoto(incidentId, file));
     }

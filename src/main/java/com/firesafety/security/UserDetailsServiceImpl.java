@@ -21,6 +21,7 @@ import java.util.List;
 @Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
 
+    // Загружает пользователя и его права для Spring Security.
     private final UserRepository userRepository;
 
     @Override
@@ -31,6 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
+        // В authorities добавляются и роли, и отдельные permissions.
         for (Role role : user.getRoles()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
             for (Permission permission : role.getPermissions()) {

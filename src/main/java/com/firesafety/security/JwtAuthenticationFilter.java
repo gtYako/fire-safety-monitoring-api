@@ -22,6 +22,7 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    // Фильтр извлекает Bearer-токен из каждого запроса и авторизует пользователя.
     private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
 
@@ -32,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = extractToken(request);
             if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+                // Валидный токен превращается в Authentication внутри SecurityContext.
                 String username = tokenProvider.getUsernameFromToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication =
@@ -46,6 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String extractToken(HttpServletRequest request) {
+        // Ожидаемый формат заголовка: Authorization: Bearer <jwt>.
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);

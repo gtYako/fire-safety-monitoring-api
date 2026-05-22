@@ -26,11 +26,13 @@ import java.util.UUID;
 @Slf4j
 public class FileStorageService {
 
+    // Разрешаем загружать только изображения, которые можно прикрепить к инциденту.
     private static final Set<String> ALLOWED_MIME_TYPES = Set.of(
             "image/jpeg", "image/png", "image/gif", "image/webp"
     );
     private static final long MAX_SIZE_BYTES = 10L * 1024 * 1024;
 
+    // Сервис хранит файл на диске, а метаданные фотографии сохраняет в базе.
     private final IncidentRepository incidentRepository;
     private final IncidentPhotoRepository photoRepository;
     private final EntityMapper mapper;
@@ -41,6 +43,7 @@ public class FileStorageService {
     @PostConstruct
     public void init() {
         try {
+            // Каталог загрузок создаётся при старте приложения, если его ещё нет.
             Files.createDirectories(Paths.get(uploadDir));
             log.info("Upload directory initialized: {}", uploadDir);
         } catch (IOException e) {
@@ -50,11 +53,13 @@ public class FileStorageService {
 
     @Transactional
     public IncidentPhotoResponse savePhoto(Long incidentId, MultipartFile file) {
+        // Фотография всегда прикрепляется к существующему инциденту.
         Incident incident = incidentRepository.findById(incidentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Incident", incidentId));
 
         validateFile(file);
 
+        // Внутреннее имя делаем случайным, чтобы файлы с одинаковыми именами не перезаписывали друг друга.
         String originalName = file.getOriginalFilename();
         String extension = extractExtension(originalName);
         String storedName = UUID.randomUUID() + extension;
@@ -80,6 +85,7 @@ public class FileStorageService {
     }
 
     private void validateFile(MultipartFile file) {
+        // Базовая защита от пустых, слишком больших и неподдерживаемых файлов.
         if (file == null || file.isEmpty()) {
             throw new FileStorageException("File is empty");
         }
@@ -93,6 +99,7 @@ public class FileStorageService {
     }
 
     private String extractExtension(String filename) {
+        // Расширение сохраняем только для удобства просмотра файла на диске.
         if (filename == null || !filename.contains(".")) return "";
         return filename.substring(filename.lastIndexOf("."));
     }

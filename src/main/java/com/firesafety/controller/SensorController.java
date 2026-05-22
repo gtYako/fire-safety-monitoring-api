@@ -22,6 +22,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class SensorController {
 
+    // REST endpoint'ы для датчиков и их пороговых значений.
     private final SensorService sensorService;
 
     @GetMapping

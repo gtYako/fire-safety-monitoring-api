@@ -23,6 +23,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
+    // REST endpoint'ы для администрирования пользователей и ролей.
     private final UserService userService;
 
     @GetMapping

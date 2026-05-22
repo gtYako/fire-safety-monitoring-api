@@ -16,6 +16,7 @@ import java.util.Date;
 @Slf4j
 public class JwtTokenProvider {
 
+    // Компонент создаёт, читает и проверяет JWT-токены.
     @Value("${jwt.secret}")
     private String jwtSecret;
 
@@ -23,6 +24,7 @@ public class JwtTokenProvider {
     private long jwtExpiration;
 
     private SecretKey getSigningKey() {
+        // Секрет в конфиге хранится в Base64 и превращается в HMAC-ключ.
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -35,6 +37,8 @@ public class JwtTokenProvider {
     public String generateToken(String username) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtExpiration);
+
+        // В токен кладём username, дату выпуска и срок действия.
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(now)
@@ -54,6 +58,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
+            // Если подпись, формат и срок действия корректны, токен считается валидным.
             Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
