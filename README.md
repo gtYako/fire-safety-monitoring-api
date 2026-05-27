@@ -189,6 +189,17 @@ curl -X GET "http://localhost:8080/api/reports/alerts/xlsx?dateFrom=2024-01-01T0
   --output report.xlsx
 ```
 
+### JSON-превью отчёта
+
+Для проверки структуры отчётов есть DTO в пакете `dto/report`: `ReportRequest`, `ReportResponse`, `AlertReportRow`.
+
+```bash
+curl -X POST http://localhost:8080/api/reports/alerts/preview \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{"dateFrom":"2024-01-01T00:00:00","dateTo":"2030-12-31T23:59:59"}'
+```
+
 ## Проверка Telegram-уведомлений
 
 ### Создание Telegram-бота

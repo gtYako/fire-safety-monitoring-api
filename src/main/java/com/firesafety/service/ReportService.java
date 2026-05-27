@@ -3,6 +3,8 @@ package com.firesafety.service;
 import com.firesafety.entity.Alert;
 import com.firesafety.entity.ReportLog;
 import com.firesafety.entity.User;
+import com.firesafety.dto.report.AlertReportRow;
+import com.firesafety.dto.report.ReportResponse;
 import com.firesafety.enums.ReportType;
 import com.firesafety.exception.ReportGenerationException;
 import com.firesafety.repository.AlertRepository;
@@ -41,6 +43,23 @@ public class ReportService {
     private final AlertRepository alertRepository;
     private final ReportLogRepository reportLogRepository;
     private final UserRepository userRepository;
+
+    @Transactional
+    public ReportResponse previewAlertReport(LocalDateTime from, LocalDateTime to) {
+        List<Alert> alerts = alertRepository.findByPeriod(from, to);
+        List<AlertReportRow> rows = alerts.stream()
+                .map(this::toAlertReportRow)
+                .toList();
+
+        return ReportResponse.builder()
+                .reportType("ALERT")
+                .dateFrom(from)
+                .dateTo(to)
+                .generatedAt(LocalDateTime.now())
+                .totalRows(rows.size())
+                .rows(rows)
+                .build();
+    }
 
     @Transactional
     public byte[] generateAlertPdf(LocalDateTime from, LocalDateTime to) {
@@ -163,5 +182,20 @@ public class ReportService {
         } catch (Exception e) {
             log.error("Failed to save report log: {}", e.getMessage());
         }
+    }
+
+    private AlertReportRow toAlertReportRow(Alert alert) {
+        return AlertReportRow.builder()
+                .alertId(alert.getId())
+                .inventoryNumber(alert.getSensor().getInventoryNumber())
+                .roomNumber(alert.getSensor().getRoom().getNumber())
+                .buildingName(alert.getSensor().getRoom().getBuilding().getName())
+                .alertType(alert.getAlertType())
+                .status(alert.getStatus())
+                .value(alert.getReading() != null ? alert.getReading().getValue() : null)
+                .threshold(alert.getSensor().getThresholdValue())
+                .message(alert.getMessage())
+                .createdAt(alert.getCreatedAt())
+                .build();
     }
 }

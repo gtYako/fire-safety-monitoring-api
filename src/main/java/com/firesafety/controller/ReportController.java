@@ -1,10 +1,13 @@
 package com.firesafety.controller;
 
+import com.firesafety.dto.report.ReportRequest;
+import com.firesafety.dto.report.ReportResponse;
 import com.firesafety.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +27,13 @@ public class ReportController {
 
     // Endpoint'ы возвращают готовые файлы отчётов по тревогам.
     private final ReportService reportService;
+
+    @PostMapping("/alerts/preview")
+    @PreAuthorize("hasAuthority('REPORT_GENERATE')")
+    @Operation(summary = "Preview alert report rows as JSON")
+    public ResponseEntity<ReportResponse> alertsPreview(@Valid @RequestBody ReportRequest request) {
+        return ResponseEntity.ok(reportService.previewAlertReport(request.getDateFrom(), request.getDateTo()));
+    }
 
     @GetMapping("/alerts/pdf")
     @PreAuthorize("hasAuthority('REPORT_GENERATE')")
