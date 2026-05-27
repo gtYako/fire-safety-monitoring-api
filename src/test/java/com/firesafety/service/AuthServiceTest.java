@@ -1,6 +1,7 @@
 package com.firesafety.service;
 
 import com.firesafety.dto.request.LoginRequest;
+import com.firesafety.dto.request.RefreshTokenRequest;
 import com.firesafety.dto.response.AuthResponse;
 import com.firesafety.entity.Role;
 import com.firesafety.entity.User;
@@ -38,14 +39,15 @@ class AuthServiceTest {
     private AuthService authService;
 
     @Test
-    void login_withValidCredentials_returnsToken() {
+    void login_withValidCredentials_returnsTokens() {
         LoginRequest request = new LoginRequest();
         request.setUsername("admin");
         request.setPassword("admin123");
 
         Authentication auth = mock(Authentication.class);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
-        when(tokenProvider.generateToken(auth)).thenReturn("test-jwt-token");
+        when(tokenProvider.generateAccessToken(auth)).thenReturn("test-access-token");
+        when(tokenProvider.generateRefreshToken("admin")).thenReturn("test-refresh-token");
 
         Role role = Role.builder().name("ADMIN").build();
         User user = User.builder()
@@ -58,9 +60,36 @@ class AuthServiceTest {
         AuthResponse response = authService.login(request);
 
         assertThat(response).isNotNull();
-        assertThat(response.getToken()).isEqualTo("test-jwt-token");
+        assertThat(response.getAccessToken()).isEqualTo("test-access-token");
+        assertThat(response.getRefreshToken()).isEqualTo("test-refresh-token");
+        assertThat(response.getTokenType()).isEqualTo("Bearer");
         assertThat(response.getUsername()).isEqualTo("admin");
         assertThat(response.getRoles()).contains("ADMIN");
         verify(authenticationManager, times(1)).authenticate(any());
+    }
+
+    @Test
+    void refresh_withValidRefreshToken_returnsNewTokens() {
+        RefreshTokenRequest request = new RefreshTokenRequest();
+        request.setRefreshToken("old-refresh-token");
+
+        Role role = Role.builder().name("ADMIN").build();
+        User user = User.builder()
+                .id(1L)
+                .username("admin")
+                .roles(Set.of(role))
+                .build();
+
+        when(tokenProvider.validateRefreshToken("old-refresh-token")).thenReturn(true);
+        when(tokenProvider.getUsernameFromToken("old-refresh-token")).thenReturn("admin");
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(user));
+        when(tokenProvider.generateAccessToken("admin")).thenReturn("new-access-token");
+        when(tokenProvider.generateRefreshToken("admin")).thenReturn("new-refresh-token");
+
+        AuthResponse response = authService.refresh(request);
+
+        assertThat(response.getAccessToken()).isEqualTo("new-access-token");
+        assertThat(response.getRefreshToken()).isEqualTo("new-refresh-token");
+        assertThat(response.getTokenType()).isEqualTo("Bearer");
     }
 }

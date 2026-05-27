@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = extractToken(request);
-            if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+            if (StringUtils.hasText(token) && tokenProvider.validateAccessToken(token)) {
                 // Валидный токен превращается в Authentication внутри SecurityContext.
                 String username = tokenProvider.getUsernameFromToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);

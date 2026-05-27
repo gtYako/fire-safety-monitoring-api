@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
     type = SecuritySchemeType.HTTP,
     scheme = "bearer",
     bearerFormat = "JWT",
-    description = "Enter JWT token obtained from POST /api/auth/login"
+    description = "Enter accessToken obtained from POST /api/auth/login"
 )
 public class SwaggerConfig {
     // Конфигурация только описывает OpenAPI/Swagger, отдельная логика здесь не нужна.
